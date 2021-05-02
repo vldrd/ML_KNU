@@ -10,7 +10,7 @@ output:
 ---
 ## 1. Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? Make a plot showing the **total** PM2.5 emission from all sources for each of the years 1999, 2002, 2005, and 2008.
 
-```{r}
+``` r
 > summary <- readRDS("D:/1/exdata_data_NEI_data/summarySCC_PM25.rds")
 > SCC <- readRDS("D:/1/exdata_data_NEI_data/Source_Classification_Code.rds")
 > total_emissions <- aggregate(Emissions ~ year, summary, sum)
@@ -23,7 +23,7 @@ output:
 > barplot(total_emissions$Emissions,names.arg=total_emissions$year,xlab="Year",ylab="Emissions",main="Total Emissions", col = "steelblue")
 ```
 
-![](/plots/lab1_task1.PNG)
+##![](/plots/lab1_task1.PNG)
 
 **Answer: Total emissions have decreased in the US from 1999 to 2008.**
 
