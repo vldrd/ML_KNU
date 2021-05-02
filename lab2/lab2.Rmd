@@ -1,0 +1,112 @@
+Лабораторна робота № 2.
+================
+---
+title: "Desicion tree assignment"
+author: "Vladyslava Rudenko"
+date: "02 05 2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Building a decision tree for predicting heart diseases
+
+**Problem**
+
+Predict presence or absence of cardiovascular disease (CVD) using the patient examination results.
+
+## Task
+
+Read the data:
+
+```r
+> library(readr)
+> mlbootcamp5_train <- read_delim("D:/1/mlbootcamp5_train.csv", ";", escape_double = FALSE, trim_ws = TRUE)
+```
+
+Transform the features: 
+- create "age in years" (`age_years`)dividing age by 365.25 and taking floor ($\lfloor{x}\rfloor$ is the largest integer that is less than or equal to $x$)
+- remove "age" feature
+- transfrom `cholesterol` and `gluc` to factor
+
+```r
+> age_years <- floor(mlbootcamp5_train$age/365.25)
+> head(age_years)
+> mlbootcamp5_train[ , !(names(mlbootcamp5_train) %in% c("age"))]
+> mlbootcamp5_train$cholesterol <- as.factor(mlbootcamp5_train$cholesterol)
+> mlbootcamp5_train$gluc <- as.factor(mlbootcamp5_train$gluc)
+```
+
+Split data into train and test parts in the proportion of 7/3.
+The target feature is `cardio`
+
+```r
+> install.packages('caret')
+> library(caret)
+> index <- createDataPartition(mlbootcamp5_train$cardio, p = 0.7, list = FALSE)
+> train <- mlbootcamp5_train[index, ]
+> test <- mlbootcamp5_train[-index,]
+```
+
+Train a decision tree on the dataset `training` with **max depth equal to 3**. For setting this parameter use function `rpart::rpart.control`. Use default cross calidation parameters.
+
+```r
+> install.packages('rpart')
+> library(rpart)
+> training <- train(cardio~ ., data = train, method = "rpart", control = rpart.control(maxdepth = 3))
+```
+
+Plot final tree with `rattle` library
+
+```r
+> install.packages('RGtk2')
+> install.packages("rattle", dependencies = TRUE)
+> install.packages("rpart.plot")
+> library(rpart.plot)
+> library(rattle)
+> fancyRpartPlot(training$finalModel)
+```
+![](plots/lab2_1.png)
+
+What is the accuracy of prediction on test data?
+
+```r
+> pred <- predict(training, test)
+> x <- as.integer(pred)
+
+> y <- test$cardio
+> l <- union(x, y)
+> t <- table(factor(x, l), factor(y, l))
+> accuracy <- confusionMatrix(t)
+```
+Now set cross validation parameters: `method = "cv"`, `number = 5`. Tree parameters set to default.
+
+```r
+> trControl <- trainControl(method = "cv", number = 5)
+> training <- train(cardio ~ ., data = train, method = "rpart", trControl = trControl)
+```
+
+Plot final tree with `rattle` library
+
+```r
+> fancyRpartPlot(training$finalModel)
+```
+![](plots/lab2_2.png)
+
+What is the accuracy of prediction on test data?
+
+```r
+> pred <- predict(training, test)
+> x <- as.integer(pred)
+> y <- test$cardio
+> l <- union(x, y)
+> t <- table(factor(x, l), factor(y, l))
+confusionMatrix(t)
+```
+Does the accuracy became better or not?
+
+Accuracy 1 is 0.5008, accuracy 2 is also 0.5008. So the accuracy didn't change.
