@@ -23,6 +23,7 @@ output:
 > barplot(total_emissions$Emissions,names.arg=total_emissions$year,xlab="Year",ylab="Emissions",main="Total Emissions", col = "steelblue")
 ```
 ![](plots/lab1_task1.png)
+png('lab1_task1')
 
 **Answer: Total emissions have decreased in the US from 1999 to 2008.**
 
